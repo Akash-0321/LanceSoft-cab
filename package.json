@@ -1,6 +1,10 @@
+{
+  "name": "lancesoft-cab",
+  "version": "1.0.0",
   "scripts": {
     "start": "npx serve public",
     "android:add": "npx cap add android",
     "android:sync": "npx cap sync android",
-    "build": "echo 'Building web assets...'" 
-  },
+    "build": "echo 'Building web assets...'"
+  }
+}
