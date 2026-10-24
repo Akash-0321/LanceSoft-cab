@@ -1,34 +1,65 @@
 name: Build Android APK
+
 on:
   workflow_dispatch:
   push:
-    branches: [ "main" ]
+    branches: [ main ]
+
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout repository
         uses: actions/checkout@v4
-      - name: Setup Node
+
+      - name: Prepare project from starter ZIP when present
+        shell: bash
+        run: |
+          if [ -f LanceSoft_Cabs_Web_Android_Starter.zip ]; then
+            unzip -o LanceSoft_Cabs_Web_Android_Starter.zip -d .
+          fi
+          if [ ! -f package.json ]; then
+            echo 'ERROR: package.json is missing. Upload the contents of the LanceSoft Cabs Android starter ZIP to the repository root, or upload the ZIP named LanceSoft_Cabs_Web_Android_Starter.zip.'
+            exit 1
+          fi
+          if [ ! -f capacitor.config.json ]; then
+            echo 'ERROR: capacitor.config.json is missing from repository root.'
+            exit 1
+          fi
+          if [ ! -f public/index.html ]; then
+            echo 'ERROR: public/index.html is missing. Starter ZIP was not extracted correctly.'
+            exit 1
+          fi
+
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
-          cache: npm
-      - name: Install dependencies
-        run: npm install
-      - name: Create Android project
-        run: npx cap add android
-      - name: Sync web app
-        run: npx cap sync android
+          node-version: '20'
+
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '21'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Create Android project
+        run: npx cap add android
+
+      - name: Sync web app
+        run: npx cap sync android
+
       - name: Build debug APK
-        run: cd android && chmod +x gradlew && ./gradlew assembleDebug
+        run: |
+          cd android
+          chmod +x gradlew
+          ./gradlew assembleDebug
+
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: LanceSoft-Cabs-debug-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
