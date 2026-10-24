@@ -1,105 +1,91 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="hi">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="theme-color" content="#10233f">
-<title>LanceSoft Cabs | Attendance</title>
-<style>
-:root{--navy:#10233f;--blue:#2463eb;--bg:#f3f6fb;--ink:#172033;--muted:#68758a;--line:#dfe6f0;--green:#138a58;--red:#b42318}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);font:15px system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:var(--ink)}
-header{background:var(--navy);color:white;padding:18px max(18px,calc((100% - 1100px)/2));display:flex;justify-content:space-between;align-items:center;gap:12px}
-.brand{font-weight:800;font-size:20px}.sub{font-size:12px;opacity:.78;margin-top:3px}
-main{max-width:1100px;margin:24px auto;padding:0 16px}.panel{background:white;border:1px solid var(--line);border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:0 5px 18px #10233f0a}
-h1,h2,h3{margin:0 0 12px}h1{font-size:25px}h2{font-size:18px}.muted{color:var(--muted)}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
-label{display:block;font-weight:650;font-size:13px;margin:12px 0 6px}input,select,textarea{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:10px;background:white;font:inherit}button{border:0;border-radius:10px;padding:11px 15px;background:var(--blue);color:white;font-weight:700;font:inherit;cursor:pointer}button.secondary{background:#e8eef8;color:var(--navy)}button.danger{background:#b42318}button:disabled{opacity:.5;cursor:not-allowed}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.hidden{display:none!important}.status{padding:10px 12px;border-radius:10px;background:#eef4ff;margin:10px 0}.success{background:#e8f7ef;color:#12683f}.error{background:#fff0ef;color:#9b1c13}.pill{display:inline-block;padding:4px 9px;border-radius:99px;background:#edf2fa;font-size:12px;font-weight:700}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}.stat{padding:15px;border:1px solid var(--line);border-radius:12px}.num{font-size:25px;font-weight:800}.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}table{border-collapse:collapse;width:100%;font-size:13px}th,td{text-align:left;padding:10px;border-bottom:1px solid var(--line);vertical-align:top}th{background:#f8fafc}.tablewrap{overflow:auto}.small{font-size:12px}.section{margin-top:18px}footer{text-align:center;color:var(--muted);padding:20px;font-size:12px}
-</style>
-<link rel="manifest" href="./manifest.webmanifest"><meta name="theme-color" content="#10233f"></head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LanceSoft Cabs</title>
+    <!-- सुंदर डिज़ाइन के लिए Bootstrap CSS -->
+    <link href="https://jsdelivr.net" rel="stylesheet">
+    <style>
+        body { background-color: #f4f7f6; font-family: sans-serif; }
+        .app-header { background-color: #0b2240; color: white; padding: 15px; text-align: center; }
+        .card { border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border: none; }
+        #webcam { border: 3px solid #0b2240; border-radius: 10px; background-color: #222; transform: scaleX(-1); width: 100%; max-width: 320px; height: 240px; }
+    </style>
+</head>
 <body>
-<header><div><div class="brand">🚐 LanceSoft Cabs</div><div class="sub">Office cab attendance & duty management</div></div><div id="topUser" class="small"></div></header>
-<main>
-  <div id="configNotice" class="panel">
-    <h1>Connect your Firebase project</h1>
-    <p class="muted">Open this file in a text editor and replace the placeholder values in <code>firebaseConfig</code> with the configuration shown in Firebase Console → Project settings → Your apps.</p>
-    <p class="small">This starter is not connected until you add your own Firebase configuration and deploy the Firestore security rules.</p>
-  </div>
-  <section id="authPanel" class="panel">
-    <h1>Welcome</h1><p class="muted">Sign in with your approved work account or request access.</p>
-    <div id="msg" class="status hidden" role="status"></div>
-    <div class="grid">
-      <div>
-        <h2>Sign in</h2>
-        <label>Email</label><input id="email" type="email" autocomplete="username" placeholder="name@company.com">
-        <label>Password</label><input id="password" type="password" autocomplete="current-password" placeholder="Password">
-        <div class="actions"><button id="signInBtn">Sign in</button><button id="googleBtn" class="secondary">Continue with Google</button></div>
-      </div>
-      <div>
-        <h2>Request access</h2>
-        <label>Full name</label><input id="regName" placeholder="Your full name">
-        <label>Account type</label><select id="regRole"><option value="employee">Employee</option><option value="driver">Driver</option><option value="vendor">Vendor</option></select>
-        <label>Employee ID / Driver ID / Vendor ID</label><input id="regCode" placeholder="Assigned ID">
-        <label>Company / Vendor name (optional)</label><input id="regCompany" placeholder="Company name">
-        <div class="actions"><button id="requestBtn">Create account & request approval</button></div>
-        <p class="muted small">New accounts remain pending until an administrator approves them.</p>
-      </div>
-    </div>
-  </section>
-  <section id="pendingPanel" class="panel hidden"><h1>Approval pending</h1><p>Your account is signed in but has not yet been approved by the LanceSoft Cabs administrator. Please contact your admin.</p><button id="pendingSignOut" class="secondary">Sign out</button></section>
-  <section id="appPanel" class="hidden">
-    <div class="panel">
-      <div class="actions" style="justify-content:space-between;margin-top:0"><div><h1 id="hello">Dashboard</h1><div id="profileLine" class="muted"></div></div><button id="signOutBtn" class="secondary">Sign out</button></div>
-      <div class="cards section"><div class="stat"><div class="muted small">Account role</div><div id="roleStat" class="num" style="font-size:19px">—</div></div><div class="stat"><div class="muted small">Today's duty</div><div id="dutyStat" class="num" style="font-size:19px">Not started</div></div><div class="stat"><div class="muted small">Access status</div><div class="num" style="font-size:19px;color:var(--green)">Approved</div></div></div>
-    </div>
-    <div id="adminPanel" class="panel hidden">
-      <h2>Admin — user approvals</h2><p class="muted small">Only users with the Firebase custom claim <code>admin:true</code> can manage approvals. Do not make a user admin from this page.</p>
-      <div class="actions"><button id="refreshUsers" class="secondary">Refresh pending users</button><button id="exportBtn" class="secondary">Export visible records CSV</button></div>
-      <div id="pendingUsers" class="tablewrap section"></div>
-      <div class="section"><h2>Attendance & trip records</h2><div class="actions"><button id="loadRecords" class="secondary">Load records</button></div><div id="records" class="tablewrap"></div></div>
-    </div>
-    <div id="dutyPanel" class="panel">
-      <h2>Duty attendance</h2><p class="muted">Start duty when your cab shift begins and end duty when the shift is complete. Location is collected only during an active duty session after permission is granted.</p>
-      <label>Trip / route note</label><input id="routeNote" placeholder="e.g. Evening round 1 / Route A">
-      <label>Cab number (if assigned)</label><input id="cabNumber" placeholder="e.g. MP09 AB 1234">
-      <div class="actions"><button id="dutyInBtn">Duty IN</button><button id="dutyOutBtn" class="danger">Duty OUT</button><button id="locationBtn" class="secondary">Share current location</button></div>
-      <div id="dutyMsg" class="status hidden"></div>
-    </div>
-    <div id="historyPanel" class="panel"><h2>My recent attendance</h2><div class="actions"><button id="myHistoryBtn" class="secondary">Refresh my history</button></div><div id="myHistory" class="tablewrap section"></div></div>
-  </section>
-</main>
-<footer>LanceSoft Cabs • Prototype starter • Configure Firebase and security rules before real-world use.</footer>
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-app.js";
-import { getAuth, onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, setDoc, updateDoc, collection, addDoc, query, where, orderBy, limit, getDocs, serverTimestamp } from "https://www.gstatic.com/firebasejs/13.0.0/firebase-firestore.js";
 
-// REPLACE every placeholder below with your Firebase Console web-app configuration.
-const firebaseConfig = {
-  
-const firebaseConfig = {
-  apiKey: "AIzaSyCduPamxcnrtUKUZmSqGh82jmiEopXxMvk",
-  authDomain: "lancesoft-cabs.firebaseapp.com",
-  projectId: "lancesoft-cabs",
-  storageBucket: "lancesoft-cabs.firebasestorage.app",
-  messagingSenderId: "899171450775",
-  appId: "1:899171450775:web:54cdc93777d579f3194ed2",
-  measurementId: "G-LZH3H4V2SM"
-};
-const configured = !Object.values(firebaseConfig).some(v => String(v).includes("PASTE_"));
-const $ = id => document.getElementById(id);
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-let currentProfile = null, activeDutyId = null, watchId = null, exportRows = [];
-const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function notice(text, type="") { const e=$("msg"); e.textContent=text; e.className="status "+type; e.classList.remove("hidden"); }
-function dutyNotice(text,type="") { const e=$("dutyMsg"); e.textContent=text; e.className="status "+type; e.classList.remove("hidden"); }
-function localDate(){return new Date().toLocaleDateString("en-CA");}
-function stamp(){return new Date().toISOString();}
-function show(el, yes=true){$(el).classList.toggle("hidden",!yes);}
-function pretty(v){ if(!v)return "—"; if(v.toDate)return v.toDate().toLocaleString(); if(typeof v==="string")return new Date(v).toLocaleString(); return String(v); }
-function csv(rows){ if(!rows.length)return ""; const keys=[...new Set(rows.flatMap(r=>Object.keys(r)))]; return [keys.join(","),...rows.map(r=>keys.map(k=>'"'+String(r[k]??"").replace(/"/g,'""')+'"').join(","))].join("\n");}
-function downloadCSV(rows,name){const blob=new Blob([csv(rows)],{type:"text/csv;charset=utf-8"});const a=document.createElement("a");a.href=URL.createObjectURL(blob);a.download=name;a.click();URL.revokeObjectURL(a.href);}
-if(!configured){$("configNotice").classList.remove("hidden");}
+    <!-- ऐप का हेडर -->
+    <div class="app-header">
+        <h2>🚖 LanceSoft Cabs</h2>
+        <p class="mb-0">Office Cab Attendance & Duty Management</p>
+    </div>
+
+    <div class="container my-4" style="max-width: 500px;">
+        <!-- 1. सुरक्षित कैमरा सेक्शन -->
+        <div class="card p-4 mb-4 text-center">
+            <h5 class="card-title text-primary mb-3">चेहरा स्कैन करें (Face Verification)</h5>
+            <div class="mx-auto">
+                <video id="webcam" autoplay muted playsinline></video>
+            </div>
+            <p id="camera-status" class="text-muted small mt-2">कैमरा परमिशन जांची जा रही है...</p>
+            <button id="btn-scan" class="btn btn-success mt-2 w-100">चेहरा पहचानें 👤</button>
+        </div>
+
+        <!-- 2. लॉगिन फॉर्म -->
+        <div class="card p-4">
+            <h5 class="card-title mb-3">पारंपरिक लॉगिन (Sign In)</h5>
+            <form id="login-form">
+                <div class="mb-3">
+                    <label class="form-label">कंपनी ईमेल (Email)</label>
+                    <input type="email" id="email" class="form-control" placeholder="name@company.com" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">पासवर्ड (Password)</label>
+                    <input type="password" id="password" class="form-control" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">साइन इन करें</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- सुरक्षित जावास्क्रिप्ट - सीधे इसी फ़ाइल में ताकि एरर न आए -->
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            const video = document.getElementById('webcam');
+            const statusText = document.getElementById('camera-status');
+            const scanBtn = document.getElementById('btn-scan');
+
+            // सुरक्षित कैमरा इनिशियलाइजेशन
+            try {
+                if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                    const stream = await navigator.mediaDevices.getUserMedia({ 
+                        video: { facingMode: "user" } 
+                    });
+                    if (video) {
+                        video.srcObject = stream;
+                        statusText.innerText = "कैमरा एक्टिव है।";
+                        statusText.style.color = "green";
+                    }
+                } else {
+                    statusText.innerText = "इस डिवाइस में कैमरा सपोर्ट नहीं है।";
+                    statusText.style.color = "orange";
+                }
+            } catch (error) {
+                console.error("कैमरा लोड एरर:", error);
+                statusText.innerText = "कैमरा चालू नहीं हो सका। आप ईमेल से लॉगिन कर सकते हैं।";
+                statusText.style.color = "red";
+            }
+
+            // स्कैन बटन का काम
+            scanBtn.addEventListener('click', () => {
+                alert("कैमरा चालू हो चुका है! अगले स्टेप में हम इसमें फेस डिटेक्शन लॉजिक जोड़ेंगे।");
+            });
+        });
+    </script>
+</body>
+</html>
+en");}
 $("signInBtn").onclick=async()=>{try{await signInWithEmailAndPassword(auth,$("email").value.trim(),$("password").value);notice("Signed in.","success");}catch(e){notice(e.message,"error");}};
 $("googleBtn").onclick=async()=>{try{await signInWithPopup(auth,new GoogleAuthProvider());}catch(e){notice(e.message,"error");}};
 $("requestBtn").onclick=async()=>{
